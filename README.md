@@ -30,4 +30,10 @@ Choose a task, or suggest something else, let [@oppen@merveilles.town](https://m
 * Add a new `ic_launcher_foreground.xml` vector icon to `app/src/NEW_FLAVOUR_NAME/res/drawable` - see guide below
 
 ## Generating a new app icon
-//todo
+* Create the new icon from the template (coming soon) in Figma/Inkscape/other
+* Switch Android Studio's file explorer mode to 'Project' instead of 'Android'
+* Find the flavour drawable directory: `src/NEW_FLAVOUR_NAME/res/drawable` **NOT** `src/main/res/drawable`
+* Right-click > New > Image Asset and make sure Icon type is set to 'Launcher Icons (Adaptive and Legacy)'
+* In the Options tab set Legacy Icon, Round Icon, Google Play Store Icon all to No.
+* In Foreground Layer tab select the new SVG file using the Path file chooser, tap Next then Finish.
+* Delete `ic_launcher_background.xml`, that's identical for all flavours, you just want the new `ic_launcher_foreground.xml` icon in the flavours `res/drawable` source set.
