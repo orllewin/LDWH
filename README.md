@@ -1,6 +1,6 @@
 # LDWH: Long Distance Walk Helper
 
-A project that generates Android apps that help plan destinations and stopping points along long distance hiking paths, it also acts as a back-up to physical maps and gives you confidence you're on track. The key feature is a simple calculation that measures distances along the path that was missing in other apps. 
+A project that generates Android apps that help plan destinations and stopping points along long distance hiking paths, it also acts as a back-up to physical maps and gives you confidence you're on track. The key feature is a simple calculation that measures distances along the path that was missing in various other apps. 
 
 ## Build instructions
 
