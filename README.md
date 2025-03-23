@@ -17,6 +17,7 @@ Choose a task, or suggest something else, let [@oppen@merveilles.town](https://m
 
 ### Outstanding tasks/features
 * Initial coordinates and zoom should show entire route
+* Improve location permissions flow
 * Allow users adding their own Mapbox tokens in-app 
 * Add sunset time to ui based on user location
 * In-app ability to add waymarkers with notes (for hotel/hostel bookings etc)
