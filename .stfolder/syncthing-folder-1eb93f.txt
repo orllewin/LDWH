@@ -1,5 +1,0 @@
-# This directory is a Syncthing folder marker.
-# Do not delete.
-
-folderID: ctxbb-rvgrg
-created: 2025-03-23T15:24:34Z
