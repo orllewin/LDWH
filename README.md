@@ -23,7 +23,7 @@ Choose a task, or suggest something else, let [@oppen@merveilles.town](https://m
 * In-app ability to add waymarkers with notes (for hotel/hostel bookings etc)
 
 ## Adding a path
-* The route should prepared in the [GeoJson](https://geojson.org/) format and composed of a series of `LineString` segments. There are several websites that can convert from the older but more common [.gpx format](https://en.wikipedia.org/wiki/GPS_Exchange_Format) to GeoJson. 
+* The route should be prepared in the [GeoJson](https://geojson.org/) format and composed of a series of `LineString` segments. There are several websites that can convert from the older but more common [.gpx format](https://en.wikipedia.org/wiki/GPS_Exchange_Format) to GeoJson. 
 * Create a new [build variant Flavour](https://developer.android.com/build/build-variants). Edit the `productFlavors` section in `/app/build.gradle.kts` file, and the route in alphabetical order.
 * Add a new source set directory matching the flavour name under `/app/src`, just copy/paste one of the others
 * Add the GeoJson to `app/src/NEW_FLAVOUR_NAME/res/raw` with the filename `route.geojson` 
