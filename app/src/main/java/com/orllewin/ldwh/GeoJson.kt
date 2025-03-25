@@ -5,6 +5,7 @@ import android.location.Location
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
+import org.json.JSONObject
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -29,7 +30,16 @@ class GeoJson {
         fun hasSubsection(): Boolean = subsection != null
     }
 
+    data class RouteConfig(
+        val name: String,
+        val latitude: Double,
+        val longitude: Double,
+        val zoom: Double,
+        val loop: Boolean
+    )
+
     private val routePoints = mutableListOf<Point>()
+    private var routeConfig: RouteConfig? = null
 
     private enum class RouteStatus{
         IDLE, START_SET, END_SET
@@ -49,9 +59,23 @@ class GeoJson {
                 }
             }
         }
+
+        context.resources.openRawResource(R.raw.route_config).use { inputStream ->
+            inputStream.reader().use { streamReader ->
+                val routeConfigJson = JSONObject(streamReader.readText())
+                routeConfig = RouteConfig(
+                    name = routeConfigJson.getString("name"),
+                    latitude = routeConfigJson.getDouble("centreLatitude"),
+                    longitude = routeConfigJson.getDouble("centreLongitude"),
+                    zoom = routeConfigJson.getDouble("initialZoom"),
+                    loop = routeConfigJson.getBoolean("loop")
+                )
+            }
+        }
     }
 
     fun routePoints(): List<Point> = routePoints
+    fun routeConfig(): RouteConfig? = routeConfig
 
     private var tappedStart: Point? = null
     private var startOnRoute: Point? = null
@@ -103,11 +127,19 @@ class GeoJson {
                     startPoint = routePoints[terminalIndexes.first],
                     endPoint = routePoints[terminalIndexes.second],
                     subsection = subsection,
-                    distanceMiles = "${BigDecimal(miles).setScale(2, RoundingMode.HALF_EVEN)}",
-                    distanceKm = "${BigDecimal(kilometers).setScale(2, RoundingMode.HALF_EVEN)}",
+                    distanceMiles = "${BigDecimal(miles).setScale(1, RoundingMode.HALF_EVEN)}",
+                    distanceKm = "${BigDecimal(kilometers).setScale(1, RoundingMode.HALF_EVEN)}",
                 )
             }
         }
+    }
+
+    fun clearSubsection(){
+        tappedStart = null
+        startOnRoute = null
+        tappedEnd = null
+        endOnRoute = null
+        routeStatus = RouteStatus.IDLE
     }
 
     private fun distance(ll1: Point, ll2: Point): Float {

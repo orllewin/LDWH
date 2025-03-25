@@ -16,7 +16,7 @@ MAPBOX_ACCESS_TOKEN=YourAccessTokenHere
 Choose a task, or suggest something else, let [@oppen@merveilles.town](https://merveilles.town/@oppen) know so they don't start work on the same thing.
 
 ### Outstanding tasks/features
-* Initial coordinates and zoom should show entire route
+* <strike>Initial coordinates and zoom should show entire route</strike> - done.
 * Improve location permissions flow
 * Allow users adding their own Mapbox tokens in-app 
 * Add sunset time to ui based on user location
@@ -27,6 +27,8 @@ Choose a task, or suggest something else, let [@oppen@merveilles.town](https://m
 * Create a new [build variant Flavour](https://developer.android.com/build/build-variants). Edit the `productFlavors` section in `/app/build.gradle.kts` file, and the route in alphabetical order.
 * Add a new source set directory matching the flavour name under `/app/src`, just copy/paste one of the others
 * Add the GeoJson to `app/src/NEW_FLAVOUR_NAME/res/raw` with the filename `route.geojson` 
+* Add a new `routeConfig.json` to `app/src/NEW_FLAVOUR_NAME/res/raw`, copy one of the existing files then:
+* Find the midpoint of the route for the initial map state, either eyeball it using some mapping software or run the kotlin script: `/tools/centre_point.main.kts`
 * Add a new `ic_launcher_foreground.xml` vector icon to `app/src/NEW_FLAVOUR_NAME/res/drawable` - see guide below
 
 ## Generating a new app icon
