@@ -32,7 +32,7 @@ Choose a task, or suggest something else, let [@oppen@merveilles.town](https://m
 * Add a new `ic_launcher_foreground.xml` vector icon to `app/src/NEW_FLAVOUR_NAME/res/drawable` - see guide below
 
 ## Generating a new app icon
-* Create the new icon from the template (coming soon) in Figma/Inkscape/other
+* Create the new icon from the template ([app_icon_template.svg](./app_icon_template.svg)) in Figma/Inkscape/other. Typeface is Helvetica Neue, weight: Medium, size: 96. Use two characters if possible (Pennine Way = PW), three at most (Yorkshire Three Peaks = Y3P)
 * Switch Android Studio's file explorer mode to 'Project' instead of 'Android'
 * Find the flavour drawable directory: `src/NEW_FLAVOUR_NAME/res/drawable` **NOT** `src/main/res/drawable`
 * Right-click > New > Image Asset and make sure Icon type is set to 'Launcher Icons (Adaptive and Legacy)'
