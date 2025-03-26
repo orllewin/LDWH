@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,16 +42,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.Style
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 import com.mapbox.maps.extension.compose.annotation.generated.PolylineAnnotation
 import com.mapbox.maps.extension.compose.annotation.rememberIconImage
 import com.mapbox.maps.extension.compose.style.DoubleValue
+import com.mapbox.maps.extension.compose.style.GenericStyle
 import com.mapbox.maps.extension.compose.style.LongValue
 import com.mapbox.maps.extension.compose.style.MapStyle
 import com.mapbox.maps.extension.compose.style.StringValue
+import com.mapbox.maps.extension.compose.style.rememberStyleState
 import com.mapbox.maps.extension.compose.style.sources.generated.rememberRasterDemSourceState
+import com.mapbox.maps.extension.compose.style.standard.MapboxStandardStyle
 import com.mapbox.maps.extension.compose.style.terrain.generated.TerrainState
 import com.mapbox.maps.extension.compose.style.terrain.generated.rememberTerrainState
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
@@ -58,62 +65,12 @@ import com.mapbox.maps.plugin.locationcomponent.location
 import com.orllewin.ldwh.ui.components.LdwhTopBar
 import com.orllewin.ldwh.ui.theme.LDWHTheme
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.Language
-import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: RouteViewModel by viewModels()
 
-    @Language("JSON")
-    private val STYLE = """
-{
-  "version": 8,
-  "name": "Mapbox Terrain tileset v2",
-  "sources": {
-    "mapbox-terrain": {
-      "type": "vector",
-      "url": "mapbox://mapbox.mapbox-terrain-v2"
-    }
-  },
-  "layers": [
-    {
-      "id": "background",
-      "type": "background",
-      "paint": {"background-color": "#4444ff"}
-    },
-    {
-      "id": "landcover",
-      "source": "mapbox-terrain",
-      "source-layer": "landcover",
-      "type": "fill",
-      "paint": {
-        "fill-color": "rgba(66,251,100, 0.3)",
-        "fill-outline-color": "rgba(66,251,100, 1)"
-      }
-    },
-    {
-      "id": "hillshade",
-      "source": "mapbox-terrain",
-      "source-layer": "hillshade",
-      "type": "fill",
-      "paint": {
-        "fill-color": "rgba(66,251,100, 0.3)",
-        "fill-outline-color": "rgba(66,251,100, 1)"
-      }
-    },
-    {
-      "id": "contour",
-      "source": "mapbox-terrain",
-      "source-layer": "contour",
-      "type": "line",
-      "paint": {
-        "line-color": "#ffffff"
-      }
-    }
-  ]
-}
-"""
+
 
     @OptIn(MapboxExperimental::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -140,6 +97,9 @@ class MainActivity : ComponentActivity() {
                 viewModel.subsectionFlow
             }.collectAsState()
 
+            val mapStyleState by remember(viewModel){
+                viewModel.mapStyleFlow
+            }.collectAsState()
 
             val context = LocalContext.current
 
@@ -155,14 +115,14 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(false)
             }
 
-            //terrain
+
             val rasterDemSourceState = rememberRasterDemSourceState().apply {
-                url = StringValue("mapbox://mapbox.mapbox-terrain-v2")
+                url = StringValue("mapbox://mapbox.mapbox-terrain-dem-v1")
                 tileSize = LongValue(514L)
             }
 
             val customTerrainState = rememberTerrainState(rasterDemSourceState) {
-                exaggeration = DoubleValue(4.0)
+                exaggeration = DoubleValue(0.0)
             }
 
             var currentTerrainState by rememberSaveable(stateSaver = TerrainState.Saver) {
@@ -181,7 +141,18 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         LdwhTopBar(
                             title = routeConfigState?.name ?: "",
-                            subsection = subsectionState
+                            subsection = subsectionState,
+                            onNextStyle = {
+                                viewModel.nextStyle()
+                            },
+                            onNextElevation = {
+                                when (customTerrainState.exaggeration.doubleOrNull) {
+                                    0.0 -> customTerrainState.exaggeration = DoubleValue(1.0)
+                                    1.0 -> customTerrainState.exaggeration = DoubleValue(1.5)
+                                    1.5 -> customTerrainState.exaggeration = DoubleValue(2.0)
+                                    else -> customTerrainState.exaggeration = DoubleValue(0.0)
+                                }
+                            }
                         ){
                             viewModel.clearSubsection()
                         }
@@ -192,8 +163,8 @@ class MainActivity : ComponentActivity() {
                                 mapViewportState.transitionToFollowPuckState()
                             }
                         ) {
-                            Image(
-                                painter = painterResource(id = android.R.drawable.ic_menu_mylocation),
+                            Icon(
+                                painter = painterResource(R.drawable.my_location),
                                 contentDescription = "Locate button"
                             )
                         }
@@ -222,13 +193,34 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(top = innerPadding.calculateTopPadding()),
                             mapViewportState = mapViewportState,
-//                            style = {
-//                                MapStyle(style = STYLE)
-//                            },
-//                            style = {
-//                                MapStyle(style = Style.OUTDOORS)
-//                            },
-                            style = { MapStyle(style = "mapbox://styles/orllewin/cm8no21bu002r01qv7nxshea8") },
+                            style = {
+                                when(mapStyleState){
+                                    MapStyle.Default -> GenericStyle(
+                                        style = Style.STANDARD,
+                                        styleState = rememberStyleState {
+                                            terrainState = currentTerrainState
+                                        }
+                                    )
+                                    MapStyle.Satellite -> GenericStyle(
+                                        style = Style.SATELLITE,
+                                        styleState = rememberStyleState {
+                                            terrainState = currentTerrainState
+                                        }
+                                    )
+                                    MapStyle.Outdoors -> MapStyle(
+                                        style = Style.OUTDOORS,
+                                        styleState = rememberStyleState {
+                                            terrainState = currentTerrainState
+                                        }
+                                    )
+                                    is MapStyle.NorthStar -> MapStyle(
+                                        style = "mapbox://styles/orllewin/cm8no21bu002r01qv7nxshea8",
+                                        styleState = rememberStyleState {
+                                            terrainState = currentTerrainState
+                                        },
+                                    )
+                                }
+                             },
                             onMapClickListener = { point ->
 
                                 return@MapboxMap true

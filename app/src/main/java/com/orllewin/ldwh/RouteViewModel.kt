@@ -26,6 +26,9 @@ class RouteViewModel : ViewModel() {
     private val _subsectionFlow: MutableStateFlow<GeoJson.Subsection> = MutableStateFlow(GeoJson.Subsection.empty())
     var subsectionFlow = _subsectionFlow.asStateFlow()
 
+    private val _mapStyleFlow: MutableStateFlow<MapStyle> = MutableStateFlow(MapStyle.Outdoors)
+    var mapStyleFlow = _mapStyleFlow.asStateFlow()
+
     private val geoJson = GeoJson()
 
     fun getRoute(context: Context) {
@@ -49,6 +52,22 @@ class RouteViewModel : ViewModel() {
                     )
                 )
             }
+        }
+    }
+
+    fun changeStyle(style: MapStyle){
+        viewModelScope.launch{
+            _mapStyleFlow.emit(style)
+        }
+    }
+
+    fun nextStyle(){
+        when(_mapStyleFlow.value){
+            MapStyle.Default -> changeStyle(MapStyle.Satellite)
+            MapStyle.Satellite -> changeStyle(MapStyle.Outdoors)
+            MapStyle.Outdoors -> changeStyle(MapStyle.NorthStar)
+            MapStyle.NorthStar -> changeStyle(MapStyle.Default)
+
         }
     }
 
